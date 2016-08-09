@@ -1,0 +1,15 @@
+.contain{
+    margin: 0 auto;
+    width: 93%;
+}
+.box{
+    float:left;
+    -webkit-box-shadow: 0 0 10px black;
+    -moz-box-shadow: 0 0 10px black;
+    box-show:0 0 10px black;
+    padding: 10px;
+    margin: 5px;
+}
+.box img{
+    width:212px;
+}
