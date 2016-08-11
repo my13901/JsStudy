@@ -1,74 +1,78 @@
-var data = document.getElementsByClassName("box");
-var contain = document.getElementsByClassName("contain");
+var parentContainer = "container";
+var imgBox = "box";
+
 
 window.onload=function(){
-    refreshImage();
+    waterfall(parentContainer,imgBox);
 }
 window.onresize=function(){
-    refreshImage();
+    waterfall(parentContainer,imgBox);
 }
 window.onscroll = function(){
-    var t = document.documentElement.scrollTop || document.body.scrollTop;
-    if(document.body.clientWidth<(t*2.2)){
-         loadNewData();
+    if(checkscrollside(parentContainer,imgBox)){
+       loadNewData(parentContainer,imgBox);
     }
 }
-function refreshImage(){
-
-    var winWidth;
-    if (window.innerWidth)
-        winWidth = window.innerWidth;
-    else if ((document.body) && (document.body.clientWidth))
-        winWidth = document.body.clientWidth;
-    winWidth = winWidth*0.93;
-
-    var picWidth;
-    var pic = document.getElementsByClassName("box");
-    picWidth = pic[0].getElementsByTagName("img")[0].width;
-
-    var num = winWidth/picWidth;
-    num = parseInt(num-1);
-
-    console.info(num);
-    var picHeigArray = new Array();
-
-    for(var i=0;i<pic.length;i++){
+function waterfall(parent,box){
+    var oParent=document.getElementById(parent);
+    var aBox = oParent.getElementsByClassName(box);
+    var boxH = aBox[0].offsetWidth;
+    var num=Math.floor(document.documentElement.clientWidth/boxH);
+    //console.info(num);
+    var boxHeigArr = [];
+    for(var i=0;i<aBox.length;i++){
+        var everyHeight = aBox[i].offsetHeight;
         if(i<num){
-            picHeigArray.push(pic[i].getElementsByTagName("img")[0].height+40);
-            pic[i].style.position = "";
-            pic[i].style.float="";
-            pic[i].style.top = "";
-            pic[i].style.left = "";
+            boxHeigArr.push(everyHeight);
+            aBox[i].style.position = "";
+            aBox[i].style.top = "";
+            aBox[i].style.left = "";
         }else{
-            var minHeight = Math.min.apply(null,picHeigArray);
-            pic[i].style.position = "absolute";
-            pic[i].style.top = (minHeight)+"px";
-
-            var positionLeft = findPosition(picHeigArray,minHeight)*(picWidth+25)+(winWidth)*0.05;
-
-            pic[i].style.left = positionLeft+"px";
-            changeHeigtArray(picHeigArray,minHeight,minHeight+40+pic[i].getElementsByTagName("img")[0].height);
+            var minH = Math.min.apply(null,boxHeigArr);
+            aBox[i].style.position = "absolute";
+            aBox[i].style.top = minH+"px";
+            var minHindex = findPosition(boxHeigArr,minH);
+            aBox[i].style.left = aBox[minHindex].offsetLeft+"px";
+            boxHeigArr[minHindex] += aBox[i].offsetHeight;
         }
     }
 }
-function changeHeigtArray(array,currentValue,newValue){
-    for(var i=0;i<array.length;i++){
-         if(array[i] == currentValue){
-             array.splice(i,1,newValue);
-         }
-     }
+
+function checkscrollside(parent,box){
+    var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    var oParent=document.getElementById(parent);
+    var aBox = oParent.getElementsByClassName(box);
+    var lastBoxH = aBox[aBox.length-1].offsetTop+Math.floor(aBox[aBox.length-1].offsetHeight/3)
+    var documentH=document.documentElement.clientHeight;
+    //console.info(documentH+"  "+scrollTop+"  "+lastBoxH);
+    return (documentH+scrollTop)>lastBoxH;
 }
-function findPosition(arry,value){
-    for(var i=0;i<arry.length;i++){
-        if(arry[i] == value){
-           return i;
+
+function loadNewData(parent,box){
+    var oParent=document.getElementById(parent);
+    var aBox = oParent.getElementsByClassName(box);
+    var boxH = aBox[0].offsetWidth;
+    var num=Math.floor(document.documentElement.clientWidth/boxH);
+
+    for(var i=0; i<num;i++){
+        var newObj = aBox[fRandomBy(aBox.length)].cloneNode(true);
+        oParent.appendChild(newObj);
+    }
+    waterfall(parent,box);
+}
+
+function findPosition(arr,minH){
+    for(var i in arr){
+        if(arr[i]==minH){
+            return i;
         }
     }
 }
-function loadNewData(){
-    for(var i=0; i<10;i++){
-        var newObj = data[i].cloneNode(true);
-        document.getElementsByClassName("contain")[0].appendChild(newObj);
-    }
-    refreshImage();
-}
+function fRandomBy(under, over){ 
+   switch(arguments.length){ 
+     case 1: return parseInt(Math.random()*under+1); 
+     case 2: return parseInt(Math.random()*(over-under+1) + under); 
+     default: return 0; 
+   } 
+} 
+
